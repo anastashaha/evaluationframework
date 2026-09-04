@@ -1,0 +1,1216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Recommendability Scorecard</title>
+<meta name="description" content="An interactive tool for evaluating whether a language technology tool is safe to recommend to an endangered-language community, with adjustable weights.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%9A%96%EF%B8%8F%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Noto+Sans:wght@400;500;600;700&display=swap">
+<style>
+  :root {
+    --bg: #FBF8F1;
+    --surface: #FFFFFF;
+    --surface-alt: #F4F1EA;
+    --border: #DDD6C5;
+    --border-strong: #B8B09C;
+    --text: #1F2E2C;
+    --text-muted: #5F6B63;
+    --heading: #0B3339;
+
+    --accent: #044D58;
+    --accent-strong: #033940;
+    --accent-tint: #E4EEEC;
+
+    --tier-rights: #B33A2F;
+    --tier-rights-bg: #FAECE7;
+    --tier-risk: #96701C;
+    --tier-risk-bg: #FBF0D6;
+    --tier-practical: #3F7A34;
+    --tier-practical-bg: #E9F2E1;
+
+    --state-not-met: #B33A2F;
+    --state-not-met-bg: #FAECE7;
+    --state-partial: #A47A1D;
+    --state-partial-bg: #FBF0D6;
+    --state-met: #2F7A3D;
+    --state-met-bg: #E4F1E3;
+
+    --gate-bg: #FBEAE6;
+    --gate-border: #C14437;
+    --gate-text: #6E2318;
+
+    --focus: #1E7A8C;
+    --shadow: rgba(31, 46, 44, 0.08);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0E211F;
+      --surface: #16302E;
+      --surface-alt: #1B3937;
+      --border: #2C4B47;
+      --border-strong: #3C6259;
+      --text: #E7E9E1;
+      --text-muted: #A9B6AC;
+      --heading: #F2EFE4;
+
+      --accent: #6FC1C4;
+      --accent-strong: #8FD3D5;
+      --accent-tint: #1C3D3B;
+
+      --tier-rights: #E8917F;
+      --tier-rights-bg: #3A2320;
+      --tier-risk: #E2BE6E;
+      --tier-risk-bg: #392E19;
+      --tier-practical: #92CE84;
+      --tier-practical-bg: #1F3720;
+
+      --state-not-met: #E8917F;
+      --state-not-met-bg: #3A2320;
+      --state-partial: #E2BE6E;
+      --state-partial-bg: #392E19;
+      --state-met: #92CE84;
+      --state-met-bg: #1F3720;
+
+      --gate-bg: #3D211B;
+      --gate-border: #D9694F;
+      --gate-text: #F3C6B7;
+
+      --focus: #8FD3D5;
+      --shadow: rgba(0, 0, 0, 0.35);
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --bg: #0E211F;
+    --surface: #16302E;
+    --surface-alt: #1B3937;
+    --border: #2C4B47;
+    --border-strong: #3C6259;
+    --text: #E7E9E1;
+    --text-muted: #A9B6AC;
+    --heading: #F2EFE4;
+
+    --accent: #6FC1C4;
+    --accent-strong: #8FD3D5;
+    --accent-tint: #1C3D3B;
+
+    --tier-rights: #E8917F;
+    --tier-rights-bg: #3A2320;
+    --tier-risk: #E2BE6E;
+    --tier-risk-bg: #392E19;
+    --tier-practical: #92CE84;
+    --tier-practical-bg: #1F3720;
+
+    --state-not-met: #E8917F;
+    --state-not-met-bg: #3A2320;
+    --state-partial: #E2BE6E;
+    --state-partial-bg: #392E19;
+    --state-met: #92CE84;
+    --state-met-bg: #1F3720;
+
+    --gate-bg: #3D211B;
+    --gate-border: #D9694F;
+    --gate-text: #F3C6B7;
+
+    --focus: #8FD3D5;
+    --shadow: rgba(0, 0, 0, 0.35);
+  }
+
+  * { box-sizing: border-box; }
+
+  html { color-scheme: light dark; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Noto Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 15px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  a { color: var(--accent); }
+
+  :focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: 2px;
+  }
+
+  .wrap {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 28px 24px 80px;
+  }
+
+  /* ---------- Header ---------- */
+
+  .site-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    padding-bottom: 22px;
+    border-bottom: 2px solid var(--accent);
+    margin-bottom: 26px;
+  }
+
+  .mark {
+    flex: none;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    margin-top: 4px;
+    background: conic-gradient(var(--tier-rights) 0deg 120deg, var(--tier-risk) 120deg 240deg, var(--accent) 240deg 360deg);
+    box-shadow: inset 0 0 0 3px var(--bg);
+  }
+
+  .site-header .eyebrow {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  .site-header h1 {
+    font-family: 'Fraunces', Georgia, serif;
+    font-weight: 600;
+    font-size: clamp(26px, 3.4vw, 34px);
+    line-height: 1.12;
+    color: var(--heading);
+    margin: 3px 0 6px;
+    text-wrap: balance;
+  }
+
+  .site-header p {
+    margin: 0;
+    max-width: 62ch;
+    color: var(--text-muted);
+    font-size: 14.5px;
+  }
+
+  /* ---------- Meta fields ---------- */
+
+  .meta {
+    grid-area: meta;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 22px;
+  }
+
+  .field label {
+    display: block;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 5px;
+  }
+
+  .field input {
+    width: 100%;
+    font: inherit;
+    font-size: 14.5px;
+    color: var(--text);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 9px 11px;
+  }
+
+  .field input:focus-visible { border-color: var(--focus); }
+
+  /* ---------- Layout ---------- */
+
+  .layout {
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    grid-template-areas: "meta meta" "categories summary";
+    gap: 16px 22px;
+  }
+
+  @media (max-width: 880px) {
+    .layout {
+      grid-template-columns: 1fr;
+      grid-template-areas: "meta" "summary" "categories";
+    }
+  }
+
+  .categories { grid-area: categories; display: flex; flex-direction: column; gap: 12px; }
+  .summary-panel { grid-area: summary; }
+
+  /* ---------- Category card ---------- */
+
+  .cat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .cat-card[data-tier="rights"] { border-top: 3px solid var(--tier-rights); }
+  .cat-card[data-tier="risk"] { border-top: 3px solid var(--tier-risk); }
+  .cat-card[data-tier="practical"] { border-top: 3px solid var(--tier-practical); }
+
+  .cat-head {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px 14px;
+    padding: 12px 16px;
+  }
+
+  .cat-num {
+    flex: none;
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+  [data-tier="rights"] .cat-num { background: var(--tier-rights-bg); color: var(--tier-rights); }
+  [data-tier="risk"] .cat-num { background: var(--tier-risk-bg); color: var(--tier-risk); }
+  [data-tier="practical"] .cat-num { background: var(--tier-practical-bg); color: var(--tier-practical); }
+
+  .cat-title-block { flex: 1 1 220px; min-width: 0; }
+
+  .cat-title {
+    font-weight: 600;
+    font-size: 15px;
+    color: var(--heading);
+  }
+
+  .cat-tier-label {
+    display: block;
+    font-size: 10.5px;
+    color: var(--text-muted);
+    margin-top: 1px;
+  }
+
+  .weight-field {
+    flex: none;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12.5px;
+    color: var(--text-muted);
+  }
+
+  .weight-field input {
+    width: 46px;
+    font: inherit;
+    font-size: 13.5px;
+    font-variant-numeric: tabular-nums;
+    text-align: center;
+    color: var(--text);
+    background: var(--surface-alt);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 5px 4px;
+  }
+
+  .rating {
+    flex: none;
+    display: inline-flex;
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    overflow: hidden;
+  }
+
+  .rating button {
+    font: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-muted);
+    background: var(--surface);
+    border: none;
+    border-left: 1px solid var(--border);
+    padding: 7px 10px;
+    cursor: pointer;
+  }
+  .rating button:first-child { border-left: none; }
+
+  .rating button[data-val="0"][aria-pressed="true"] { background: var(--state-not-met-bg); color: var(--state-not-met); }
+  .rating button[data-val="1"][aria-pressed="true"] { background: var(--state-partial-bg); color: var(--state-partial); }
+  .rating button[data-val="2"][aria-pressed="true"] { background: var(--state-met-bg); color: var(--state-met); }
+
+  .cat-points {
+    flex: none;
+    width: 56px;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    font-weight: 700;
+    font-size: 13.5px;
+    color: var(--heading);
+  }
+  .cat-points span { display: block; font-size: 9.5px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-muted); }
+
+  .cat-toggle {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    width: 100%;
+    background: var(--surface-alt);
+    border: none;
+    border-top: 1px solid var(--border);
+    color: var(--text-muted);
+    font: inherit;
+    font-size: 12.5px;
+    font-weight: 600;
+    padding: 8px 16px;
+    cursor: pointer;
+    text-align: left;
+  }
+
+  .cat-toggle .chev { transition: transform 0.15s ease; font-size: 10px; }
+  .cat-toggle[aria-expanded="true"] .chev { transform: rotate(90deg); }
+
+  .cat-detail {
+    display: none;
+    padding: 4px 16px 14px 52px;
+    font-size: 13px;
+    color: var(--text);
+  }
+  .cat-detail.open { display: block; }
+  .cat-detail ul { list-style: none; margin: 6px 0 0; padding: 0; }
+
+  .q-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 5px 6px;
+    margin: 0 -6px;
+    border-radius: 5px;
+  }
+
+  .q-item[data-required="true"] {
+    background: var(--gate-bg);
+  }
+
+  .q-item input[type="checkbox"] {
+    flex: none;
+    margin-top: 3px;
+    width: 14px;
+    height: 14px;
+    accent-color: var(--accent);
+    cursor: pointer;
+  }
+
+  .q-item label {
+    flex: 1 1 auto;
+    color: var(--text);
+    cursor: pointer;
+  }
+
+  .q-item input[type="checkbox"]:checked + label {
+    color: var(--text-muted);
+    text-decoration: line-through;
+    text-decoration-color: var(--border-strong);
+  }
+
+  .q-flag {
+    flex: none;
+    width: 22px;
+    height: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    line-height: 1;
+    border-radius: 5px;
+    border: 1px solid transparent;
+    background: transparent;
+    color: var(--border-strong);
+    cursor: pointer;
+    opacity: 0.55;
+  }
+  .q-item:hover .q-flag { opacity: 1; }
+  .q-flag:hover { background: var(--surface-alt); border-color: var(--border); }
+  .q-flag[aria-pressed="true"] {
+    color: var(--gate-border);
+    opacity: 1;
+  }
+
+  /* ---------- Summary panel ---------- */
+
+  .summary-panel .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px;
+  }
+
+  @media (min-width: 881px) {
+    .summary-panel .card { position: sticky; top: 20px; }
+  }
+
+  .score-headline {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+  }
+
+  .score-pct {
+    font-family: 'Fraunces', Georgia, serif;
+    font-weight: 600;
+    font-size: 44px;
+    line-height: 1;
+    color: var(--heading);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .score-frac {
+    font-size: 13px;
+    color: var(--text-muted);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .score-bar-track {
+    margin-top: 10px;
+    height: 8px;
+    border-radius: 5px;
+    background: var(--surface-alt);
+    overflow: hidden;
+  }
+
+  .score-bar-fill {
+    height: 100%;
+    border-radius: 5px;
+    background: var(--state-not-met);
+    width: 0%;
+    transition: width 0.2s ease, background 0.2s ease;
+  }
+
+  .rated-count {
+    margin-top: 8px;
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  .gate-banner {
+    display: none;
+    margin-top: 14px;
+    background: var(--gate-bg);
+    border: 1px solid var(--gate-border);
+    border-radius: 7px;
+    padding: 10px 12px;
+    color: var(--gate-text);
+  }
+  .gate-banner.active { display: block; }
+  .gate-banner .gate-title {
+    font-weight: 700;
+    font-size: 12.5px;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+  }
+  .gate-banner ul { margin: 6px 0 0; padding-left: 16px; font-size: 12.5px; }
+  .gate-banner li { margin-bottom: 3px; }
+
+  .divider { height: 1px; background: var(--border); margin: 16px 0; border: none; }
+
+  .gates-heading {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 3px;
+  }
+
+  .gates-help {
+    font-size: 11.5px;
+    color: var(--text-muted);
+    line-height: 1.5;
+    margin-bottom: 10px;
+  }
+
+  .gates-empty {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-style: italic;
+    padding: 4px 0;
+  }
+
+  .gate-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: 12.5px;
+    padding: 6px 0;
+  }
+
+  .gate-item input {
+    margin-top: 2px;
+    flex: none;
+    accent-color: var(--gate-border);
+    cursor: pointer;
+  }
+
+  .gate-item label {
+    flex: 1 1 auto;
+    cursor: pointer;
+  }
+
+  .gate-item .gate-cat {
+    display: block;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--text-muted);
+    margin-top: 1px;
+  }
+
+  .gate-item input:checked ~ label { color: var(--text-muted); }
+
+  .gate-remove {
+    flex: none;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    font-size: 13px;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  .gate-remove:hover { background: var(--surface-alt); color: var(--text); }
+
+  .panel-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 16px;
+  }
+
+  .btn {
+    font: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    border-radius: 6px;
+    padding: 9px 12px;
+    cursor: pointer;
+    text-align: center;
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: var(--bg);
+    border: 1px solid var(--accent);
+  }
+  .btn-primary:hover { background: var(--accent-strong); border-color: var(--accent-strong); }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+  }
+  .btn-ghost:hover { color: var(--text); border-color: var(--border-strong); }
+
+  .legend {
+    margin-top: 16px;
+    font-size: 11.5px;
+    line-height: 1.6;
+    color: var(--text-muted);
+  }
+  .legend b { color: var(--text); }
+  .tier-key { display: flex; flex-direction: column; gap: 4px; margin-top: 6px; }
+  .tier-key span { display: inline-flex; align-items: center; gap: 5px; }
+  .tier-dot { width: 8px; height: 8px; border-radius: 50%; }
+  .tier-dot.rights { background: var(--tier-rights); }
+  .tier-dot.risk { background: var(--tier-risk); }
+  .tier-dot.practical { background: var(--tier-practical); }
+
+  footer {
+    max-width: 1180px;
+    margin: 40px auto 0;
+    padding: 18px 24px 0;
+    border-top: 1px solid var(--border);
+    color: var(--text-muted);
+    font-size: 12px;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  /* ---------- Print ---------- */
+
+  @media print {
+    .no-print { display: none !important; }
+    body { background: #fff; color: #000; font-size: 11px; }
+    .summary-panel .card { position: static; border: 1px solid #999; }
+    .cat-detail { display: block !important; padding-left: 40px; }
+    .cat-card { break-inside: avoid; border-color: #999; }
+    .rating button[aria-pressed="true"] { text-decoration: underline; }
+    a[href]::after { content: ""; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="site-header">
+    <div class="mark" aria-hidden="true"></div>
+    <div>
+      <div class="eyebrow">Endangered Languages Project &middot; Ethical technology evaluation framework</div>
+      <h1>Recommendability Scorecard</h1>
+      <p>Score a technology tool against ten weighted categories before recommending it to a community. Adjust the weights to match your community's own priorities. Everything below recalculates automatically.</p>
+    </div>
+  </header>
+
+  <div class="layout">
+
+    <div class="meta">
+      <div class="field">
+        <label for="tool-name">Tool being evaluated</label>
+        <input type="text" id="tool-name" placeholder="e.g. Talking Dictionary App">
+      </div>
+      <div class="field">
+        <label for="evaluator">Evaluated by / date</label>
+        <input type="text" id="evaluator" placeholder="Name, community, date">
+      </div>
+    </div>
+
+    <div class="categories" id="categories"></div>
+
+    <aside class="summary-panel">
+      <div class="card">
+        <div class="score-headline">
+          <div class="score-pct" id="score-pct">0%</div>
+          <div class="score-frac" id="score-frac">0 / 0 pts</div>
+        </div>
+        <div class="score-bar-track"><div class="score-bar-fill" id="score-bar"></div></div>
+        <div class="rated-count" id="rated-count">0 of 10 categories rated</div>
+
+        <div class="gate-banner" id="gate-banner">
+          <div class="gate-title">Not recommendable &mdash; required question unmet</div>
+          <p style="margin:6px 0 0; font-size:12.5px;">The score above is shown for reference only. Every question your community has marked as required must be checked off before this tool can be recommended.</p>
+          <ul id="gate-banner-list"></ul>
+        </div>
+
+        <hr class="divider">
+
+        <div class="gates-heading">Your community's hard gates</div>
+        <div class="gates-help">Click the flag icon (&#9872;) next to any guiding question in the list to make it non-negotiable. Required questions appear here, and the tool isn't recommendable until every one is checked off.</div>
+        <div id="gates"></div>
+
+        <hr class="divider">
+
+        <div class="panel-actions no-print">
+          <button class="btn btn-primary" id="btn-print">Save as PDF</button>
+          <button class="btn btn-ghost" id="btn-reset-weights">Reset weights to defaults</button>
+          <button class="btn btn-ghost" id="btn-reset-all">Clear ratings &amp; start over</button>
+        </div>
+
+        <div class="legend">
+          <b>Scoring</b> &mdash; Not met = 0 pts, Partial = 1 pt, Met = 2 pts. Weighted score = weight &times; points, summed across categories. Percentage = weighted score &divide; (total weight &times; 2).
+          <div class="tier-key">
+            <span><i class="tier-dot rights"></i>Rights-defining (&times;3 default)</span>
+            <span><i class="tier-dot risk"></i>Risk-mitigating (&times;2 default)</span>
+            <span><i class="tier-dot practical"></i>Practical (&times;1 default)</span>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+  </div>
+
+  <footer>
+    <span>2026 &copy; Anastasha Rachel Gunawan, built for the Endangered Languages Project (ELP)</span>
+    <span>Ratings and weights are saved in this browser only</span>
+  </footer>
+
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  var TIERS = {
+    rights: { label: "Rights-defining", weight: 3 },
+    risk: { label: "Risk-mitigating", weight: 2 },
+    practical: { label: "Practical", weight: 1 }
+  };
+
+  var CATEGORIES = [
+    { id: "need-fit", title: "Need and fit", tier: "practical", questions: [
+      "Does this solve a real, named problem for this language work?",
+      "Did we seriously consider non-tech alternatives first?",
+      "Does it work offline, on our devices, and with our writing system?"
+    ]},
+    { id: "origin-consent", title: "Origin and consent", tier: "rights", questions: [
+      "Did the builder consult or co-design with a community like ours?",
+      "Can we trace whether original contributors consented to this use?",
+      "Is there a process to say no, or withdraw consent later?"
+    ]},
+    { id: "cultural-protocols", title: "Cultural protocols, access and governance", tier: "rights", questions: [
+      "Can we restrict who sees or hears content, beyond public vs. private?",
+      "Can we attach provenance to individual items, not just the dataset?",
+      "Can we change access rules later, as protocols change?",
+      "Is there a separate, community-governed instance for shared-ISO languages?"
+    ]},
+    { id: "data-ownership", title: "Data ownership, control and access", tier: "rights", questions: [
+      "Do we retain full ownership, or does the provider claim any rights?",
+      "Do we have real technical control to export and delete our data?",
+      "Is export/deletion part of the provider's rollout plan, not just possible?",
+      "Can others — the public, provider, other customers, AI training — access it?"
+    ]},
+    { id: "benefit-sharing", title: "Benefit-sharing and reciprocity", tier: "rights", questions: [
+      "Does value flow back automatically, or must we apply or report for it?",
+      "Are speakers and contributors credited or compensated?",
+      "Do we have a claim on downstream commercial value?"
+    ]},
+    { id: "security-privacy", title: "Security and privacy", tier: "risk", questions: [
+      "Does the provider publish clear security/privacy practices, not just fine print?",
+      "Does the tool require secure, unique logins rather than shared access?",
+      "Is there a named contact and process for reporting a breach?",
+      "Is there a documented cadence for security updates and patches?",
+      "Is ethnic-origin or biometric data given extra protection (e.g. GDPR Art. 9)?"
+    ]},
+    { id: "provider-governance", title: "Provider, governance and commitment", tier: "risk", questions: [
+      "Can we talk to the provider directly and get a straight answer on cost?",
+      "Is there vendor lock-in if we switch later?",
+      "Does the community have real representation in governance, not just input?"
+    ]},
+    { id: "ai-models", title: "AI, models and algorithmic use", tier: "risk", questions: [
+      "Was training consent collected item-by-item, not scraped in bulk?",
+      "Can we request our contributions be removed from a training set?",
+      "Is accuracy for our specific language documented, not just claimed in aggregate?",
+      "Could outputs be mistaken for a fluent speaker's, misleading learners?",
+      "Are AI outputs clearly and persistently watermarked as synthetic?"
+    ]},
+    { id: "disaster-recovery", title: "Disaster recovery and exit", tier: "practical", questions: [
+      "If we stop tomorrow, do we leave with usable data, or is it stuck?",
+      "Do backups exist, and who controls them?",
+      "What is the real, not promised, cost of leaving?"
+    ]},
+    { id: "usability-maintenance", title: "Usability and maintenance", tier: "practical", questions: [
+      "Does it work on the devices and connections people actually have?",
+      "Can someone with no technical background use it without training?",
+      "If technical knowledge is needed, does the rollout plan cover that support?",
+      "Is there a documented, funded maintenance plan with a named owner?",
+      "Has the provider made a specific written commitment to long-term support?"
+    ]}
+  ];
+
+  var STORAGE_KEY = "elp-recommendability-scorecard-v2";
+
+  function emptyPerQuestion(fillValue) {
+    var map = {};
+    CATEGORIES.forEach(function (c) {
+      map[c.id] = c.questions.map(function () { return fillValue; });
+    });
+    return map;
+  }
+
+  function defaultState() {
+    var ratings = {}, weights = {};
+    CATEGORIES.forEach(function (c) {
+      ratings[c.id] = null;
+      weights[c.id] = TIERS[c.tier].weight;
+    });
+    return {
+      toolName: "",
+      evaluator: "",
+      ratings: ratings,
+      weights: weights,
+      questionChecks: emptyPerQuestion(false),
+      requiredQuestions: emptyPerQuestion(false)
+    };
+  }
+
+  function mergePerQuestion(saved, fallback) {
+    var merged = fallback;
+    if (saved) {
+      CATEGORIES.forEach(function (c) {
+        var savedArr = saved[c.id];
+        if (Array.isArray(savedArr)) {
+          merged[c.id] = c.questions.map(function (_, i) { return !!savedArr[i]; });
+        }
+      });
+    }
+    return merged;
+  }
+
+  function loadState() {
+    try {
+      var raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return defaultState();
+      var parsed = JSON.parse(raw);
+      var base = defaultState();
+      return {
+        toolName: parsed.toolName || "",
+        evaluator: parsed.evaluator || "",
+        ratings: Object.assign(base.ratings, parsed.ratings || {}),
+        weights: Object.assign(base.weights, parsed.weights || {}),
+        questionChecks: mergePerQuestion(parsed.questionChecks, base.questionChecks),
+        requiredQuestions: mergePerQuestion(parsed.requiredQuestions, base.requiredQuestions)
+      };
+    } catch (e) {
+      return defaultState();
+    }
+  }
+
+  function saveState() {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) {}
+  }
+
+  var state = loadState();
+
+  var el = {
+    toolName: document.getElementById("tool-name"),
+    evaluator: document.getElementById("evaluator"),
+    categories: document.getElementById("categories"),
+    gates: document.getElementById("gates"),
+    scorePct: document.getElementById("score-pct"),
+    scoreFrac: document.getElementById("score-frac"),
+    scoreBar: document.getElementById("score-bar"),
+    ratedCount: document.getElementById("rated-count"),
+    gateBanner: document.getElementById("gate-banner"),
+    gateBannerList: document.getElementById("gate-banner-list")
+  };
+
+  el.toolName.value = state.toolName;
+  el.evaluator.value = state.evaluator;
+  el.toolName.addEventListener("input", function () { state.toolName = el.toolName.value; saveState(); });
+  el.evaluator.addEventListener("input", function () { state.evaluator = el.evaluator.value; saveState(); });
+
+  function ratingLabel(v) {
+    return v === 0 ? "Not met" : v === 1 ? "Partial" : "Met";
+  }
+
+  function updateQuestionRowUI(catId, qi) {
+    var checkbox = document.getElementById("qchk-" + catId + "-" + qi);
+    var flagBtn = document.getElementById("qflag-" + catId + "-" + qi);
+    var row = document.getElementById("qrow-" + catId + "-" + qi);
+    if (!checkbox) return;
+    var checked = !!state.questionChecks[catId][qi];
+    var required = !!state.requiredQuestions[catId][qi];
+    checkbox.checked = checked;
+    flagBtn.setAttribute("aria-pressed", required ? "true" : "false");
+    flagBtn.textContent = required ? "⚑" : "⚐";
+    flagBtn.setAttribute("aria-label", required ? "Remove as required (hard gate)" : "Mark as required (hard gate)");
+    flagBtn.title = flagBtn.getAttribute("aria-label");
+    row.setAttribute("data-required", required ? "true" : "false");
+  }
+
+  function buildCategoryCard(cat, index) {
+    var card = document.createElement("div");
+    card.className = "cat-card";
+    card.setAttribute("data-tier", cat.tier);
+
+    var head = document.createElement("div");
+    head.className = "cat-head";
+
+    var num = document.createElement("div");
+    num.className = "cat-num";
+    num.textContent = String(index + 1);
+    head.appendChild(num);
+
+    var titleBlock = document.createElement("div");
+    titleBlock.className = "cat-title-block";
+    var title = document.createElement("div");
+    title.className = "cat-title";
+    title.textContent = cat.title;
+    var tierLabel = document.createElement("span");
+    tierLabel.className = "cat-tier-label";
+    tierLabel.textContent = TIERS[cat.tier].label + " tier";
+    titleBlock.appendChild(title);
+    titleBlock.appendChild(tierLabel);
+    head.appendChild(titleBlock);
+
+    var weightField = document.createElement("label");
+    weightField.className = "weight-field";
+    var weightInput = document.createElement("input");
+    weightInput.type = "number";
+    weightInput.min = "0";
+    weightInput.max = "10";
+    weightInput.step = "1";
+    weightInput.value = state.weights[cat.id];
+    weightInput.setAttribute("aria-label", "Weight for " + cat.title);
+    weightField.appendChild(document.createTextNode("Weight"));
+    weightField.appendChild(weightInput);
+    head.appendChild(weightField);
+
+    var rating = document.createElement("div");
+    rating.className = "rating";
+    rating.setAttribute("role", "group");
+    rating.setAttribute("aria-label", "Rating for " + cat.title);
+    [0, 1, 2].forEach(function (v) {
+      var btn = document.createElement("button");
+      btn.type = "button";
+      btn.dataset.val = String(v);
+      btn.textContent = ratingLabel(v);
+      btn.setAttribute("aria-pressed", state.ratings[cat.id] === v ? "true" : "false");
+      btn.addEventListener("click", function () {
+        state.ratings[cat.id] = state.ratings[cat.id] === v ? null : v;
+        saveState();
+        renderRatingButtons();
+        renderSummary();
+      });
+      rating.appendChild(btn);
+    });
+    head.appendChild(rating);
+
+    var points = document.createElement("div");
+    points.className = "cat-points";
+    points.innerHTML = "<span>Pts</span><span id=\"pts-" + cat.id + "\">&mdash;</span>";
+    head.appendChild(points);
+
+    card.appendChild(head);
+
+    var toggle = document.createElement("button");
+    toggle.type = "button";
+    toggle.className = "cat-toggle";
+    toggle.setAttribute("aria-expanded", "false");
+    toggle.innerHTML = "<span class=\"chev\">&#9656;</span> Guiding questions (" + cat.questions.length + ")";
+
+    var detail = document.createElement("div");
+    detail.className = "cat-detail";
+    var ul = document.createElement("ul");
+    cat.questions.forEach(function (q, qi) {
+      var rowId = "qrow-" + cat.id + "-" + qi;
+      var chkId = "qchk-" + cat.id + "-" + qi;
+      var flagId = "qflag-" + cat.id + "-" + qi;
+
+      var li = document.createElement("li");
+      li.className = "q-item";
+      li.id = rowId;
+      li.setAttribute("data-required", state.requiredQuestions[cat.id][qi] ? "true" : "false");
+
+      var checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.id = chkId;
+      checkbox.checked = !!state.questionChecks[cat.id][qi];
+      checkbox.addEventListener("change", function () {
+        state.questionChecks[cat.id][qi] = checkbox.checked;
+        saveState();
+        renderSummary();
+      });
+
+      var label = document.createElement("label");
+      label.setAttribute("for", chkId);
+      label.textContent = q;
+
+      var flagBtn = document.createElement("button");
+      flagBtn.type = "button";
+      flagBtn.className = "q-flag";
+      flagBtn.id = flagId;
+      var required = !!state.requiredQuestions[cat.id][qi];
+      flagBtn.setAttribute("aria-pressed", required ? "true" : "false");
+      flagBtn.textContent = required ? "⚑" : "⚐";
+      flagBtn.setAttribute("aria-label", required ? "Remove as required (hard gate)" : "Mark as required (hard gate)");
+      flagBtn.title = flagBtn.getAttribute("aria-label");
+      flagBtn.addEventListener("click", function () {
+        state.requiredQuestions[cat.id][qi] = !state.requiredQuestions[cat.id][qi];
+        saveState();
+        updateQuestionRowUI(cat.id, qi);
+        renderSummary();
+      });
+
+      li.appendChild(checkbox);
+      li.appendChild(label);
+      li.appendChild(flagBtn);
+      ul.appendChild(li);
+    });
+    detail.appendChild(ul);
+
+    toggle.addEventListener("click", function () {
+      var expanded = toggle.getAttribute("aria-expanded") === "true";
+      toggle.setAttribute("aria-expanded", expanded ? "false" : "true");
+      detail.classList.toggle("open", !expanded);
+    });
+
+    card.appendChild(toggle);
+    card.appendChild(detail);
+
+    weightInput.addEventListener("input", function () {
+      var v = parseFloat(weightInput.value);
+      state.weights[cat.id] = isNaN(v) ? 0 : v;
+      saveState();
+      renderSummary();
+    });
+
+    return card;
+  }
+
+  function renderRatingButtons() {
+    CATEGORIES.forEach(function (cat) {
+      var group = el.categories.querySelector('[data-tier="' + cat.tier + '"] .cat-title');
+    });
+    document.querySelectorAll(".cat-card").forEach(function (card, i) {
+      var cat = CATEGORIES[i];
+      card.querySelectorAll(".rating button").forEach(function (btn) {
+        var v = parseInt(btn.dataset.val, 10);
+        btn.setAttribute("aria-pressed", state.ratings[cat.id] === v ? "true" : "false");
+      });
+      var ptsEl = document.getElementById("pts-" + cat.id);
+      var w = state.weights[cat.id] || 0;
+      var r = state.ratings[cat.id];
+      ptsEl.textContent = r === null ? "—" : String(w * r);
+    });
+  }
+
+  function requiredQuestionList() {
+    var list = [];
+    CATEGORIES.forEach(function (cat) {
+      cat.questions.forEach(function (q, qi) {
+        if (state.requiredQuestions[cat.id][qi]) {
+          list.push({ catId: cat.id, catTitle: cat.title, qi: qi, text: q, met: !!state.questionChecks[cat.id][qi] });
+        }
+      });
+    });
+    return list;
+  }
+
+  function renderGatesList(required) {
+    el.gates.innerHTML = "";
+    if (required.length === 0) {
+      var empty = document.createElement("div");
+      empty.className = "gates-empty";
+      empty.textContent = "No hard gates set yet.";
+      el.gates.appendChild(empty);
+      return;
+    }
+    required.forEach(function (item) {
+      var row = document.createElement("div");
+      row.className = "gate-item";
+
+      var chkId = "gatechk-" + item.catId + "-" + item.qi;
+      var input = document.createElement("input");
+      input.type = "checkbox";
+      input.id = chkId;
+      input.checked = item.met;
+      input.addEventListener("change", function () {
+        state.questionChecks[item.catId][item.qi] = input.checked;
+        saveState();
+        updateQuestionRowUI(item.catId, item.qi);
+        renderSummary();
+      });
+
+      var label = document.createElement("label");
+      label.setAttribute("for", chkId);
+      label.textContent = item.text;
+      var catTag = document.createElement("span");
+      catTag.className = "gate-cat";
+      catTag.textContent = item.catTitle;
+      label.appendChild(catTag);
+
+      var remove = document.createElement("button");
+      remove.type = "button";
+      remove.className = "gate-remove";
+      remove.setAttribute("aria-label", "Unflag as required");
+      remove.title = "Unflag as required";
+      remove.textContent = "×";
+      remove.addEventListener("click", function () {
+        state.requiredQuestions[item.catId][item.qi] = false;
+        saveState();
+        updateQuestionRowUI(item.catId, item.qi);
+        renderSummary();
+      });
+
+      row.appendChild(input);
+      row.appendChild(label);
+      row.appendChild(remove);
+      el.gates.appendChild(row);
+    });
+  }
+
+  function renderSummary() {
+    var totalWeighted = 0, totalMax = 0, ratedCount = 0;
+    CATEGORIES.forEach(function (cat) {
+      var w = state.weights[cat.id] || 0;
+      totalMax += w * 2;
+      var r = state.ratings[cat.id];
+      if (r !== null) {
+        totalWeighted += w * r;
+        ratedCount++;
+      }
+    });
+
+    document.querySelectorAll(".cat-card").forEach(function (card, i) {
+      var cat = CATEGORIES[i];
+      var ptsEl = document.getElementById("pts-" + cat.id);
+      var w = state.weights[cat.id] || 0;
+      var r = state.ratings[cat.id];
+      ptsEl.textContent = r === null ? "—" : String(w * r);
+    });
+
+    var pct = totalMax > 0 ? Math.round((totalWeighted / totalMax) * 100) : 0;
+
+    el.scorePct.textContent = pct + "%";
+    el.scoreFrac.textContent = totalWeighted + " / " + totalMax + " pts";
+    el.ratedCount.textContent = ratedCount + " of " + CATEGORIES.length + " categories rated";
+    el.scoreBar.style.width = pct + "%";
+    el.scoreBar.style.background = pct >= 75 ? "var(--state-met)" : pct >= 50 ? "var(--state-partial)" : "var(--state-not-met)";
+
+    var required = requiredQuestionList();
+    renderGatesList(required);
+
+    var unmet = required.filter(function (item) { return !item.met; });
+    if (unmet.length > 0) {
+      el.gateBanner.classList.add("active");
+      el.gateBannerList.innerHTML = "";
+      unmet.forEach(function (item) {
+        var li = document.createElement("li");
+        li.textContent = item.text + " (" + item.catTitle + ")";
+        el.gateBannerList.appendChild(li);
+      });
+    } else {
+      el.gateBanner.classList.remove("active");
+    }
+  }
+
+  CATEGORIES.forEach(function (cat, i) {
+    el.categories.appendChild(buildCategoryCard(cat, i));
+  });
+
+  renderSummary();
+
+  document.getElementById("btn-print").addEventListener("click", function () {
+    document.querySelectorAll(".cat-detail").forEach(function (d) { d.classList.add("open"); });
+    document.querySelectorAll(".cat-toggle").forEach(function (t) { t.setAttribute("aria-expanded", "true"); });
+    window.print();
+  });
+
+  document.getElementById("btn-reset-weights").addEventListener("click", function () {
+    CATEGORIES.forEach(function (cat) { state.weights[cat.id] = TIERS[cat.tier].weight; });
+    saveState();
+    document.querySelectorAll(".cat-card").forEach(function (card, i) {
+      var cat = CATEGORIES[i];
+      var input = card.querySelector(".weight-field input");
+      input.value = state.weights[cat.id];
+    });
+    renderSummary();
+  });
+
+  document.getElementById("btn-reset-all").addEventListener("click", function () {
+    if (!window.confirm("Clear all ratings and guiding-question checkmarks? Weights, tool/evaluator fields, and which questions are marked required are kept.")) return;
+    CATEGORIES.forEach(function (cat) {
+      state.ratings[cat.id] = null;
+      state.questionChecks[cat.id] = cat.questions.map(function () { return false; });
+    });
+    saveState();
+    document.querySelectorAll(".cat-card").forEach(function (card) {
+      card.querySelectorAll(".rating button").forEach(function (btn) { btn.setAttribute("aria-pressed", "false"); });
+      card.querySelectorAll(".q-item input[type=\"checkbox\"]").forEach(function (input) { input.checked = false; });
+    });
+    renderSummary();
+  });
+
+})();
+</script>
+</body>
+</html>

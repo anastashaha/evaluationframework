@@ -877,6 +877,10 @@
 (function () {
   "use strict";
 
+  // Placeholder guide webpage: swap in the real URL once it exists.
+  // Info icons link here with a per-question anchor, e.g. GUIDE_URL + "#rights-q1".
+  var GUIDE_URL = "https://example.com/guide.html";
+
   var TIERS = {
     rights: { label: "Rights-defining", weight: 3 },
     risk: { label: "Risk-mitigating", weight: 2 },
@@ -1192,7 +1196,9 @@
 
       var infoBtn = document.createElement("a");
       infoBtn.className = "q-info";
-      infoBtn.href = "https://example.com/guides/" + cat.id + "-q" + (qi + 1); // Note: real webpage guide link here!
+      // Placeholder: replace GUIDE_URL with the real guide webpage once it exists.
+      // Each question links to its own anchor (#cat.id-q#) on that single page.
+      infoBtn.href = GUIDE_URL + "#" + cat.id + "-q" + (qi + 1);
       infoBtn.target = "_blank";
       infoBtn.rel = "noopener";
       infoBtn.textContent = "ⓘ";

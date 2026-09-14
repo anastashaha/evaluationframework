@@ -225,6 +225,22 @@
 
   .field input:focus-visible { border-color: var(--focus); }
 
+  .field-wide { grid-column: 1 / -1; }
+
+  .field textarea {
+    width: 100%;
+    font: inherit;
+    font-size: 14.5px;
+    color: var(--text);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 9px 11px;
+    resize: vertical;
+  }
+
+  .field textarea:focus-visible { border-color: var(--focus); }
+
   /* ---------- Layout ---------- */
 
   .layout {
@@ -381,6 +397,7 @@
 
   .q-item {
     display: flex;
+    flex-wrap: wrap;
     align-items: flex-start;
     gap: 8px;
     padding: 5px 6px;
@@ -435,6 +452,72 @@
     color: var(--gate-border);
     opacity: 1;
   }
+
+  .q-info {
+    flex: none;
+    width: 22px;
+    height: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    line-height: 1;
+    border-radius: 5px;
+    border: 1px solid transparent;
+    background: transparent;
+    color: var(--border-strong);
+    cursor: pointer;
+    opacity: 0.55;
+    text-decoration: none;
+  }
+  .q-item:hover .q-info { opacity: 1; }
+  .q-info:hover { background: var(--surface-alt); border-color: var(--border); color: var(--accent); }
+
+  .q-pencil {
+    flex: none;
+    width: 22px;
+    height: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    line-height: 1;
+    border-radius: 5px;
+    border: 1px solid transparent;
+    background: transparent;
+    color: var(--border-strong);
+    cursor: pointer;
+    opacity: 0.55;
+  }
+  .q-item:hover .q-pencil { opacity: 1; }
+  .q-pencil:hover { background: var(--surface-alt); border-color: var(--border); color: var(--accent); }
+  .q-pencil[aria-expanded="true"],
+  .q-pencil[data-has-notes="true"] {
+    color: var(--accent);
+    opacity: 1;
+  }
+
+  .q-notes-wrap {
+    display: none;
+    flex-basis: 100%;
+    width: 100%;
+    margin: 2px 0 4px 22px;
+  }
+  .q-notes-wrap.open { display: block; }
+
+  .q-notes-wrap textarea {
+    width: 100%;
+    font: inherit;
+    font-size: 13.5px;
+    color: var(--text);
+    background: var(--surface-alt);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 7px 9px;
+    min-height: 50px;
+    resize: vertical;
+  }
+  .q-notes-wrap textarea:focus-visible { border-color: var(--focus); }
 
   /* ---------- Summary panel ---------- */
 
@@ -522,11 +605,38 @@
     margin-bottom: 3px;
   }
 
-  .gates-help {
+  .icon-legend {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 4px;
+  }
+
+  .icon-legend-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 9px;
+  }
+
+  .icon-legend-icon {
+    flex: none;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    line-height: 1;
+    border-radius: 5px;
+    background: var(--surface-alt);
+    color: var(--border-strong);
+    margin-top: 1px;
+  }
+
+  .icon-legend-text {
     font-size: 11.5px;
     color: var(--text-muted);
     line-height: 1.5;
-    margin-bottom: 10px;
   }
 
   .gates-empty {
@@ -678,8 +788,20 @@
         <input type="text" id="tool-name" placeholder="e.g. Talking Dictionary App">
       </div>
       <div class="field">
+        <label for="tool-link">Link to tool</label>
+        <input type="text" id="tool-link" placeholder="e.g. https://example.com/tool">
+      </div>
+      <div class="field">
+        <label for="tool-creator">Tool created by</label>
+        <input type="text" id="tool-creator" placeholder="Organization or developer">
+      </div>
+      <div class="field">
         <label for="evaluator">Evaluated by / date</label>
         <input type="text" id="evaluator" placeholder="Name, community, date">
+      </div>
+      <div class="field field-wide">
+        <label for="tool-notes">Other details / notes</label>
+        <textarea id="tool-notes" rows="3" placeholder="Anything else worth remembering about this tool"></textarea>
       </div>
     </div>
 
@@ -702,8 +824,25 @@
 
         <hr class="divider">
 
+        <div class="gates-heading">Guiding questions</div>
+        <div class="icon-legend">
+          <div class="icon-legend-row">
+            <span class="icon-legend-icon">&#9432;</span>
+            <span class="icon-legend-text">Opens a short guide with more background on that guiding question.</span>
+          </div>
+          <div class="icon-legend-row">
+            <span class="icon-legend-icon">&#9998;</span>
+            <span class="icon-legend-text">Opens a notes field where you can jot down anything worth remembering about that question.</span>
+          </div>
+          <div class="icon-legend-row">
+            <span class="icon-legend-icon">&#9872;</span>
+            <span class="icon-legend-text">Click the flag icon (&#9872;) next to any guiding question in the list to make it non-negotiable. Required questions appear here, and the tool isn't recommendable until every one is checked off.</span>
+          </div>
+        </div>
+
+        <hr class="divider">
+
         <div class="gates-heading">Your community's hard gates</div>
-        <div class="gates-help">Click the flag icon (&#9872;) next to any guiding question in the list to make it non-negotiable. Required questions appear here, and the tool isn't recommendable until every one is checked off.</div>
         <div id="gates"></div>
 
         <hr class="divider">
@@ -823,11 +962,15 @@
     });
     return {
       toolName: "",
+      toolLink: "",
+      toolCreator: "",
       evaluator: "",
+      toolNotes: "",
       ratings: ratings,
       weights: weights,
       questionChecks: emptyPerQuestion(false),
-      requiredQuestions: emptyPerQuestion(false)
+      requiredQuestions: emptyPerQuestion(false),
+      questionNotes: emptyPerQuestion("")
     };
   }
 
@@ -844,6 +987,19 @@
     return merged;
   }
 
+  function mergePerQuestionText(saved, fallback) {
+    var merged = fallback;
+    if (saved) {
+      CATEGORIES.forEach(function (c) {
+        var savedArr = saved[c.id];
+        if (Array.isArray(savedArr)) {
+          merged[c.id] = c.questions.map(function (_, i) { return savedArr[i] || ""; });
+        }
+      });
+    }
+    return merged;
+  }
+
   function loadState() {
     try {
       var raw = localStorage.getItem(STORAGE_KEY);
@@ -852,11 +1008,15 @@
       var base = defaultState();
       return {
         toolName: parsed.toolName || "",
+        toolLink: parsed.toolLink || "",
+        toolCreator: parsed.toolCreator || "",
         evaluator: parsed.evaluator || "",
+        toolNotes: parsed.toolNotes || "",
         ratings: Object.assign(base.ratings, parsed.ratings || {}),
         weights: Object.assign(base.weights, parsed.weights || {}),
         questionChecks: mergePerQuestion(parsed.questionChecks, base.questionChecks),
-        requiredQuestions: mergePerQuestion(parsed.requiredQuestions, base.requiredQuestions)
+        requiredQuestions: mergePerQuestion(parsed.requiredQuestions, base.requiredQuestions),
+        questionNotes: mergePerQuestionText(parsed.questionNotes, base.questionNotes)
       };
     } catch (e) {
       return defaultState();
@@ -871,7 +1031,10 @@
 
   var el = {
     toolName: document.getElementById("tool-name"),
+    toolLink: document.getElementById("tool-link"),
+    toolCreator: document.getElementById("tool-creator"),
     evaluator: document.getElementById("evaluator"),
+    toolNotes: document.getElementById("tool-notes"),
     categories: document.getElementById("categories"),
     gates: document.getElementById("gates"),
     scorePct: document.getElementById("score-pct"),
@@ -883,9 +1046,15 @@
   };
 
   el.toolName.value = state.toolName;
+  el.toolLink.value = state.toolLink;
+  el.toolCreator.value = state.toolCreator;
   el.evaluator.value = state.evaluator;
+  el.toolNotes.value = state.toolNotes;
   el.toolName.addEventListener("input", function () { state.toolName = el.toolName.value; saveState(); });
+  el.toolLink.addEventListener("input", function () { state.toolLink = el.toolLink.value; saveState(); });
+  el.toolCreator.addEventListener("input", function () { state.toolCreator = el.toolCreator.value; saveState(); });
   el.evaluator.addEventListener("input", function () { state.evaluator = el.evaluator.value; saveState(); });
+  el.toolNotes.addEventListener("input", function () { state.toolNotes = el.toolNotes.value; saveState(); });
 
   function ratingLabel(v) {
     return v === 0 ? "Not met" : v === 1 ? "Partial" : "Met";
@@ -984,6 +1153,7 @@
       var rowId = "qrow-" + cat.id + "-" + qi;
       var chkId = "qchk-" + cat.id + "-" + qi;
       var flagId = "qflag-" + cat.id + "-" + qi;
+      var notesId = "qnotes-" + cat.id + "-" + qi;
 
       var li = document.createElement("li");
       li.className = "q-item";
@@ -1020,9 +1190,53 @@
         renderSummary();
       });
 
+      var infoBtn = document.createElement("a");
+      infoBtn.className = "q-info";
+      infoBtn.href = "https://example.com/guides/" + cat.id + "-q" + (qi + 1); // Note: real webpage guide link here!
+      infoBtn.target = "_blank";
+      infoBtn.rel = "noopener";
+      infoBtn.textContent = "ⓘ";
+      infoBtn.setAttribute("aria-label", "Learn more about this question");
+      infoBtn.title = "Learn more about this question";
+
+      var existingNote = state.questionNotes[cat.id][qi] || "";
+
+      var pencilBtn = document.createElement("button");
+      pencilBtn.type = "button";
+      pencilBtn.className = "q-pencil";
+      pencilBtn.textContent = "✎";
+      pencilBtn.setAttribute("aria-expanded", "false");
+      pencilBtn.setAttribute("data-has-notes", existingNote.trim() ? "true" : "false");
+      pencilBtn.setAttribute("aria-label", "Add or view notes for this question");
+      pencilBtn.title = "Add or view notes for this question";
+
+      var notesWrap = document.createElement("div");
+      notesWrap.className = "q-notes-wrap";
+
+      var notesArea = document.createElement("textarea");
+      notesArea.id = notesId;
+      notesArea.rows = 2;
+      notesArea.placeholder = "Notes";
+      notesArea.value = existingNote;
+      notesArea.addEventListener("input", function () {
+        state.questionNotes[cat.id][qi] = notesArea.value;
+        saveState();
+        pencilBtn.setAttribute("data-has-notes", notesArea.value.trim() ? "true" : "false");
+      });
+      notesWrap.appendChild(notesArea);
+
+      pencilBtn.addEventListener("click", function () {
+        var open = notesWrap.classList.toggle("open");
+        pencilBtn.setAttribute("aria-expanded", open ? "true" : "false");
+        if (open) notesArea.focus();
+      });
+
       li.appendChild(checkbox);
       li.appendChild(label);
+      li.appendChild(infoBtn);
+      li.appendChild(pencilBtn);
       li.appendChild(flagBtn);
+      li.appendChild(notesWrap);
       ul.appendChild(li);
     });
     detail.appendChild(ul);

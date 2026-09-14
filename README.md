@@ -1,5 +1,7 @@
 # Recommendability Scorecard
 
+Link to scorecard here: https://anastashaha.github.io/evaluationframework/
+
 An interactive scoring tool for the Endangered Languages Project's **ethical technology evaluation framework** — a way to decide whether a language technology tool is safe to recommend to a community.
 
 This has been built intentionally as a single static web page (`index.html`) so there is no build step, no server, and no dependencies beyond a Google Fonts stylesheet). Open it directly in a browser or host it anywhere that serves static files.
